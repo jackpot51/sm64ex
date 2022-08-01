@@ -135,6 +135,11 @@ ifeq ($(HOST_OS),Darwin)
   endif
 endif
 
+ifeq ($(CROSS),x86_64-unknown-redox-)
+    PLATFORM_CFLAGS := -I$(COOKBOOK_SYSROOT)/include
+    PLATFORM_LDFLAGS := -L$(COOKBOOK_SYSROOT)/lib
+endif
+
 ifneq ($(TARGET_BITS),0)
   BITS := -m$(TARGET_BITS)
 endif
@@ -441,7 +446,7 @@ RPC_LIBS :=
 ifeq ($(DISCORDRPC),1)
   ifeq ($(WINDOWS_BUILD),1)
     RPC_LIBS := lib/discord/libdiscord-rpc.dll
-  else ifeq ($(OSX_BUILD),1) 
+  else ifeq ($(OSX_BUILD),1)
     # needs testing
     RPC_LIBS := lib/discord/libdiscord-rpc.dylib
   else
@@ -468,8 +473,8 @@ AS := i686-w64-mingw32-as
 endif
 
 ifneq ($(TARGET_WEB),1) # As in, not-web PC port
-  CC ?= $(CROSS)gcc
-  CXX ?= $(CROSS)g++
+  CC := $(CROSS)gcc
+  CXX := $(CROSS)g++
 else
   CC := emcc
   CXX := emcc
@@ -530,6 +535,8 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL $(shell pkg-config --libs glew)
+  else ifeq ($(CROSS),x86_64-unknown-redox-)
+    BACKEND_LDFLAGS += -lSDL2 -lorbital $(shell $(CROSS)pkg-config --libs osmesa) -lstdc++
   else
     BACKEND_LDFLAGS += -lGL
   endif
@@ -673,6 +680,9 @@ else ifeq ($(OSX_BUILD),1)
 
 else ifeq ($(HOST_OS),Haiku)
   LDFLAGS := $(BACKEND_LDFLAGS) -no-pie
+
+else ifeq ($(CROSS),x86_64-unknown-redox-)
+  LDFLAGS := $(PLATFORM_LDFLAGS) $(BACKEND_LDFLAGS)
 
 else
   LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -lpthread -ldl
