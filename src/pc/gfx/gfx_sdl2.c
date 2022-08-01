@@ -18,6 +18,8 @@
 
 #ifdef OSX_BUILD
 #include <SDL2/SDL_opengl.h>
+#elif defined(__redox__)
+#include <SDL2/SDL_opengl.h>
 #else
 #include <SDL2/SDL_opengles2.h>
 #endif
