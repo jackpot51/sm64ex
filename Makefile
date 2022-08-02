@@ -137,7 +137,7 @@ endif
 
 ifeq ($(CROSS),x86_64-unknown-redox-)
     PLATFORM_CFLAGS := -I$(COOKBOOK_SYSROOT)/include
-    PLATFORM_LDFLAGS := -L$(COOKBOOK_SYSROOT)/lib
+    PLATFORM_LDFLAGS := -L$(COOKBOOK_SYSROOT)/lib --static
 endif
 
 ifneq ($(TARGET_BITS),0)
